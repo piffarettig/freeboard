@@ -3528,15 +3528,15 @@ $.extend(freeboard, jQuery.eventEmitter);
 		}
 	});
 
+// Here we register Azure IoT Hub as a DataSource
 freeboard.loadDatasourcePlugin({
-
 		"type_name": "azure_iot_hub",
 		"display_name": "Azure IoT Hub",
-        "description" : "Azure IoT Hub: Azure gateway for connecting millions of devices and ingestin tons of data, establishing bidirectional communication, working with most familiar protocols and with strong features of security and device management.",
-		"external_scripts" : [
+        "description": "Azure IoT Hub: Azure gateway for connecting millions of devices and ingesting tons of data, establishing bidirectional communication, working with most familiar protocols and with strong features of security and device management.",
+		"external_scripts": [
 			"http://meshblu.octoblu.com/js/meshblu.js" //needs to be fixed to use the js of event hubs
 		],
-		"settings"    : [
+		"settings": [
 			{
 				"name"         : "connectionString",
 				"display_name" : "Connection String",
@@ -3553,13 +3553,11 @@ freeboard.loadDatasourcePlugin({
 				"default_value": 5000
 			}
 		],
-		
-		newInstance   : function(settings, newInstanceCallback, updateCallback)
+		newInstance: function(settings, newInstanceCallback, updateCallback)
 		{
 			newInstanceCallback(new azureIoTHubSource(settings, updateCallback));
 		}
 	});
-
 
 	// ### Azure IoT Hub DataSource Implementation
 	//
@@ -3576,8 +3574,7 @@ freeboard.loadDatasourcePlugin({
 		/* Function where we connect to Azure IoT via its endpoint (EventHub), and gather data) */
 		function getData()
 		{
-			// populo el newData
-
+			// Populate the newData obj
 			function getRandomBetweenInterval(min,max) {
 				return Math.floor(Math.random()*(max-min+1)+min);
 			}
@@ -3586,7 +3583,8 @@ freeboard.loadDatasourcePlugin({
     		var humidity = getRandomBetweenInterval(0,100);    
 
 			var newData = { temperature, humidity};
-			// Obtuve los datos y despues llamo al update callback
+
+			// No we call the updateCallback method
 			updateCallback(newData);
 		}
 
