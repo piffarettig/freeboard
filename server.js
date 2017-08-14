@@ -6,6 +6,8 @@ var fs = require('fs');
 app.use('/css', express.static(__dirname + '/css'));
 app.use('/img', express.static(__dirname + '/img'));
 app.use('/js', express.static(__dirname + '/js'));
+app.use('/plugins/thirdparty', express.static(__dirname + '/plugins/thirdparty'));
+app.use('/plugins/freeboard', express.static(__dirname + '/plugins/freeboard'));
 
 app.get("/", function(req, res){
 
