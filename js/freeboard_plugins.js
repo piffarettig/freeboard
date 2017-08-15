@@ -3546,11 +3546,11 @@ freeboard.loadDatasourcePlugin({
                 "required" : true
 			}, 
 			{
-				"name"         : "refresh_time",
-				"display_name" : "Refresh Time",
+				"name"         : "consumerGroup",
+				"display_name" : "Consumer Group",
 				"type"         : "text",
-				"description"  : "In milliseconds",
-				"default_value": 5000
+				"description"  : "Defined on your Azure's IoT Hub messaging Endpoint",
+				"default_value": ""
 			}
 		],
 		newInstance: function(settings, newInstanceCallback, updateCallback)
@@ -3601,25 +3601,6 @@ freeboard.loadDatasourcePlugin({
 			}
 		});
 
-		
-
-		/* Function where we connect to Azure IoT via its endpoint (EventHub), and gather data) */
-
-		// var refreshTimer;
-
-		// function createRefreshTimer(interval)
-		// {
-		// 	if(refreshTimer)
-		// 	{
-		// 		clearInterval(refreshTimer);
-		// 	}
-
-		// 	refreshTimer = setInterval(function()
-		// 	{
-		// 		//Here we call our getData function to update freeboard with new data.
-		// 	}, interval);
-		// }
-
 		// **onSettingsChanged(newSettings)** (required) : A public function we must implement that will be called when a user makes a change to the settings.
 		self.onSettingsChanged = function(newSettings)
 		{
@@ -3641,8 +3622,6 @@ freeboard.loadDatasourcePlugin({
 			refreshTimer = undefined;
 		}
 
-		// Here we call createRefreshTimer with our current settings, to kick things off, initially. Notice how we make use of one of the user defined settings that we setup earlier.
-		//createRefreshTimer(currentSettings.refresh_time);
 	}
 
 }());

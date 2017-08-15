@@ -57,9 +57,6 @@ var AzureIoTHubWebSocketsServer = function(app) {
     }
 
     function pollFromIoTHub(connectionString,consumerGroup,res) {
-        
-        //connectionString = "HostName=demo-iot-gbt-hub.azure-devices.net;SharedAccessKeyName=iothubowner;SharedAccessKey=O7GVEuz6UDNQ32A499PJSS8tP8uONXnNa3/ZXnOFoJo=";
-        consumerGroup = "piffa-group";
         var iotHubReader = new iotHubClient(connectionString, consumerGroup);
         iotHubReader.startReadMessage(function (obj, date) {
             try {
