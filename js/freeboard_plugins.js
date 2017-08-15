@@ -3584,10 +3584,7 @@ freeboard.loadDatasourcePlugin({
 						console.log('receive message' + message.data);
 						try {
 							var obj = JSON.parse(message.data);
-							if(!obj.time || !obj.temperature) {
-								return;
-							}
-							newData = {temperature: obj.temperature, humidity: obj.humidity};
+							newData = obj;
 							updateCallback(newData);
 						} catch (err) {
 							console.error(err);
