@@ -4000,7 +4000,6 @@ module.exports = NetTransport;
 
 var AbstractTransport = require('./abstract_transport.js'),
     util = require('util'),
-    tls = require('tls'),
     debug = require('debug')('amqp10:transport:tls'),
     errors = require('../errors');
 
@@ -34249,7 +34248,9 @@ module.exports = v4;
 
 var EventHubClient = require('azure-event-hubs').Client;
 
-var AzureIoTHubConnection = function(connectionString, messageArrivedCallback){
+var AzureIoTHubConnection = function(connectionString, messageArrivedCallback, errorCallback){
+
+    var self = this;
 
     var printError = function (err) {
         console.log(err.message);
@@ -34259,26 +34260,38 @@ var AzureIoTHubConnection = function(connectionString, messageArrivedCallback){
         console.log('Message received: ');
         console.log(JSON.stringify(message.body));
         console.log('');
-        messageArrivedCallback();
+        messageArrivedCallback(message.body);
     };
 
     var client = EventHubClient.fromConnectionString(connectionString);
-    client.open()
+    
+    var startReceivingDataPrivate = function() {
+        client.open()
         .then(client.getPartitionIds.bind(client))
         .then(function (partitionIds) {
             return partitionIds.map(function (partitionId) {
                 return client.createReceiver('$Default', partitionId, { 'startAfterTime' : Date.now()}).then(function(receiver) {
                     console.log('Created partition receiver: ' + partitionId)
-                    receiver.on('errorReceived', printError);
-                    receiver.on('message', printMessage);
+                    receiver.on('errorReceived', errorCallback);
+                    receiver.on('message', messageArrivedCallback);
                 });
             });
         })
         .catch(printError);
+    }
+
+    var potato = {
+      startReceivingData: function() {
+         startReceivingDataPrivate();
+      }
+    };
+
+    return potato;
 };  
 
 window.AzureIoTHubConnection = AzureIoTHubConnection;
-},{"azure-event-hubs":43}],85:[function(require,module,exports){
+window.tls = require('tls');
+},{"azure-event-hubs":43,"tls":85}],85:[function(require,module,exports){
 
 },{}],86:[function(require,module,exports){
 var asn1 = exports;

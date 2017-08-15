@@ -3533,9 +3533,9 @@ freeboard.loadDatasourcePlugin({
 		"type_name": "azure_iot_hub",
 		"display_name": "Azure IoT Hub",
         "description": "Azure IoT Hub: Azure gateway for connecting millions of devices and ingesting tons of data, establishing bidirectional communication, working with most familiar protocols and with strong features of security and device management.",
-		"external_scripts": [
-			"http://meshblu.octoblu.com/js/meshblu.js" //needs to be fixed to use the js of event hubs
-		],
+		// "external_scripts": [
+		// 	"./js/azure-iot-hub-reader.js", 
+		// ],
 		"settings": [
 			{
 				"name"         : "connectionString",
@@ -3567,51 +3567,47 @@ freeboard.loadDatasourcePlugin({
 	{
 		// Always a good idea...
 		var self = this;
+		var newData;
 
 		// Good idea to create a variable to hold on to our settings, because they might change in the future. See below.
 		var currentSettings = settings;
 
-		/* Function where we connect to Azure IoT via its endpoint (EventHub), and gather data) */
-		function getData()
-		{
-			// Populate the newData obj
+		var ws = new WebSocket('ws://' + location.host);
 
-			function messageReceivedCallback() {
-			
-			};
-
-			var connection = new AzureIoTHubConnection(currentSettings.connectionString,messageReceivedCallback);
-			console.log(JSON.stringify(connection));
-			// function getRandomBetweenInterval(min,max) {
-			// 	return Math.floor(Math.random()*(max-min+1)+min);
-			// }
-
-			// var temperature = getRandomBetweenInterval(-8,35);
-    		// var humidity = getRandomBetweenInterval(0,100);    
-
-			console.log(settings.connectionString);
-
-			var newData = { temperature, humidity};
-
-			// No we call the updateCallback method
-			updateCallback(newData);
+		ws.onopen = function () {
+			console.log('Successfully connect WebSocket');
 		}
 
-		var refreshTimer;
-
-		function createRefreshTimer(interval)
-		{
-			if(refreshTimer)
-			{
-				clearInterval(refreshTimer);
+		ws.onmessage = function (message) {
+			console.log('receive message' + message.data);
+			try {
+				var obj = JSON.parse(message.data);
+				if(!obj.time || !obj.temperature) {
+					return;
+				}
+				newData = {temperature: obj.temperature, humidity: obj.humidity};
+				updateCallback(newData);
+			} catch (err) {
+				console.error(err);
 			}
-
-			refreshTimer = setInterval(function()
-			{
-				//Here we call our getData function to update freeboard with new data.
-				getData();
-			}, interval);
 		}
+
+		/* Function where we connect to Azure IoT via its endpoint (EventHub), and gather data) */
+
+		// var refreshTimer;
+
+		// function createRefreshTimer(interval)
+		// {
+		// 	if(refreshTimer)
+		// 	{
+		// 		clearInterval(refreshTimer);
+		// 	}
+
+		// 	refreshTimer = setInterval(function()
+		// 	{
+		// 		//Here we call our getData function to update freeboard with new data.
+		// 	}, interval);
+		// }
 
 		// **onSettingsChanged(newSettings)** (required) : A public function we must implement that will be called when a user makes a change to the settings.
 		self.onSettingsChanged = function(newSettings)
@@ -3624,7 +3620,7 @@ freeboard.loadDatasourcePlugin({
 		self.updateNow = function()
 		{
 			// We just call getData() here.
-			getData();
+			//getData();
 		}
 
 		// **onDispose()** (required) : A public function we must implement that will be called when this instance of this plugin is no longer needed. Do anything you need to cleanup after yourself here.
@@ -3635,7 +3631,7 @@ freeboard.loadDatasourcePlugin({
 		}
 
 		// Here we call createRefreshTimer with our current settings, to kick things off, initially. Notice how we make use of one of the user defined settings that we setup earlier.
-		createRefreshTimer(currentSettings.refresh_time);
+		//createRefreshTimer(currentSettings.refresh_time);
 	}
 
 }());
