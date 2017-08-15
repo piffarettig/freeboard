@@ -3574,23 +3574,34 @@ freeboard.loadDatasourcePlugin({
 
 		var ws = new WebSocket('ws://' + location.host);
 
-		ws.onopen = function () {
-			console.log('Successfully connect WebSocket');
-		}
-
-		ws.onmessage = function (message) {
-			console.log('receive message' + message.data);
-			try {
-				var obj = JSON.parse(message.data);
-				if(!obj.time || !obj.temperature) {
-					return;
+		$.ajax({
+			type: 'POST',
+			data: { "connectionString": settings.connectionString, "consumerGroup" : settings.consumerGroup},
+			url: 'http://localhost:3000/StartAzureIotHubWebSocketsServer',
+			success: function() {
+				ws.onopen = function () {
+					console.log('Successfully connect WebSocket');
 				}
-				newData = {temperature: obj.temperature, humidity: obj.humidity};
-				updateCallback(newData);
-			} catch (err) {
-				console.error(err);
+				ws.onmessage = function (message) {
+					console.log('receive message' + message.data);
+					try {
+						var obj = JSON.parse(message.data);
+						if(!obj.time || !obj.temperature) {
+							return;
+						}
+						newData = {temperature: obj.temperature, humidity: obj.humidity};
+						updateCallback(newData);
+					} catch (err) {
+						console.error(err);
+					}
+				}
+			},
+			error: function(error) {
+				console.error(error);
 			}
-		}
+		});
+
+		
 
 		/* Function where we connect to Azure IoT via its endpoint (EventHub), and gather data) */
 
