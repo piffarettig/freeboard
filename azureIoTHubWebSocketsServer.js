@@ -56,19 +56,27 @@ var AzureIoTHubWebSocketsServer = function(app) {
         return false;
     }
 
-    function pollFromIoTHub(connectionString,consumerGroup,res) {
+    function pollFromIoTHub(connectionString, consumerGroup, res) {
         var iotHubReader = new iotHubClient(connectionString, consumerGroup);
-        iotHubReader.startReadMessage(function (obj, date) {
+        iotHubReader.startReadMessage(
+        (obj,date) => {
             try {
                 console.log(date);
                 date = date || Date.now()
                 wss.broadcast(JSON.stringify(Object.assign(obj, { time: moment.utc(date).format('YYYY:MM:DD[T]hh:mm:ss') })));
+                res.end("Sucess.");
             } catch (err) {
-                console.log(obj);
-                console.error(err);
+                sendError(res, err);
             }
+        },(error) => {
+            sendError(res, error);
         });
-        res.end('It worked!');
+    }
+
+    function sendError(res, error) {
+        console.log("(Error will be sent) -  " + error);
+        res.statusCode = 500;
+        res.send(JSON.stringify(error));
     }
 
 } 

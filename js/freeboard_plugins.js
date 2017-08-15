@@ -3533,9 +3533,6 @@ freeboard.loadDatasourcePlugin({
 		"type_name": "azure_iot_hub",
 		"display_name": "Azure IoT Hub",
         "description": "Azure IoT Hub: Azure gateway for connecting millions of devices and ingesting tons of data, establishing bidirectional communication, working with most familiar protocols and with strong features of security and device management.",
-		// "external_scripts": [
-		// 	"./js/azure-iot-hub-reader.js", 
-		// ],
 		"settings": [
 			{
 				"name"         : "connectionString",
@@ -3574,32 +3571,35 @@ freeboard.loadDatasourcePlugin({
 
 		var ws = new WebSocket('ws://' + location.host);
 
-		$.ajax({
-			type: 'POST',
-			data: { "connectionString": settings.connectionString, "consumerGroup" : settings.consumerGroup},
-			url: 'http://localhost:3000/StartAzureIotHubWebSocketsServer',
-			success: function() {
-				ws.onopen = function () {
-					console.log('Successfully connect WebSocket');
-				}
-				ws.onmessage = function (message) {
-					console.log('receive message' + message.data);
-					try {
-						var obj = JSON.parse(message.data);
-						if(!obj.time || !obj.temperature) {
-							return;
-						}
-						newData = {temperature: obj.temperature, humidity: obj.humidity};
-						updateCallback(newData);
-					} catch (err) {
-						console.error(err);
+		function startGettingData(){
+			$.ajax({
+				type: 'POST',
+				data: { "connectionString": currentSettings.connectionString, "consumerGroup" : currentSettings.consumerGroup},
+				url: 'http://localhost:3000/StartAzureIotHubWebSocketsServer',
+				success: function() {
+					ws.onopen = function () {
+						console.log('Successfully connect WebSocket');
 					}
+					ws.onmessage = function (message) {
+						console.log('receive message' + message.data);
+						try {
+							var obj = JSON.parse(message.data);
+							if(!obj.time || !obj.temperature) {
+								return;
+							}
+							newData = {temperature: obj.temperature, humidity: obj.humidity};
+							updateCallback(newData);
+						} catch (err) {
+							console.error(err);
+						}
+					}
+				},
+				error: function(error) {
+					console.log(error);
+					alert("Error when connecting to IoT Hub");
 				}
-			},
-			error: function(error) {
-				console.error(error);
-			}
-		});
+			});
+		}
 
 		// **onSettingsChanged(newSettings)** (required) : A public function we must implement that will be called when a user makes a change to the settings.
 		self.onSettingsChanged = function(newSettings)
@@ -3611,8 +3611,7 @@ freeboard.loadDatasourcePlugin({
 		// **updateNow()** (required) : A public function we must implement that will be called when the user wants to manually refresh the datasource
 		self.updateNow = function()
 		{
-			// We just call getData() here.
-			//getData();
+			startGettingData();
 		}
 
 		// **onDispose()** (required) : A public function we must implement that will be called when this instance of this plugin is no longer needed. Do anything you need to cleanup after yourself here.
