@@ -3541,7 +3541,7 @@ freeboard.loadDatasourcePlugin({
 				"name"         : "connectionString",
 				"display_name" : "Connection String",
 				"type"         : "text",
-				"default_value": "HostName={your-host-name};SharedAccessKeyName={your-access-key-name};SharedAccessKey={your-acces-key};",
+				"default_value": "HostName={your-host-name};SharedAccessKeyName={your-access-key-name};SharedAccessKey={your-acces-key}",
 				"description"  : "Your connection String to your IoT Hub",
                 "required" : true
 			}, 
@@ -3575,12 +3575,21 @@ freeboard.loadDatasourcePlugin({
 		function getData()
 		{
 			// Populate the newData obj
-			function getRandomBetweenInterval(min,max) {
-				return Math.floor(Math.random()*(max-min+1)+min);
-			}
 
-			var temperature = getRandomBetweenInterval(-8,35);
-    		var humidity = getRandomBetweenInterval(0,100);    
+			function messageReceivedCallback() {
+			
+			};
+
+			var connection = new AzureIoTHubConnection(currentSettings.connectionString,messageReceivedCallback);
+			console.log(JSON.stringify(connection));
+			// function getRandomBetweenInterval(min,max) {
+			// 	return Math.floor(Math.random()*(max-min+1)+min);
+			// }
+
+			// var temperature = getRandomBetweenInterval(-8,35);
+    		// var humidity = getRandomBetweenInterval(0,100);    
+
+			console.log(settings.connectionString);
 
 			var newData = { temperature, humidity};
 
@@ -3628,7 +3637,6 @@ freeboard.loadDatasourcePlugin({
 		// Here we call createRefreshTimer with our current settings, to kick things off, initially. Notice how we make use of one of the user defined settings that we setup earlier.
 		createRefreshTimer(currentSettings.refresh_time);
 	}
-
 
 }());
 
